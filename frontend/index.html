@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - Insecure Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #injectionTest {
+      background-color: #dc3545;
+      margin-top: 10px;
+    }
+
+    #injectionTest:hover {
+      background-color: #a71d2a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔐 Login</h2>
+    <form id="loginForm">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="text" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <button id="injectionTest">🔥 Test NoSQL Injection</button>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      let username;
+      try {
+        username = JSON.parse(formData.get("username"));
+      } catch (_) {
+        username = formData.get("username");
+      }
+
+      const data = {
+        username: username,
+        password: formData.get("password")
+      };
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.text();
+      alert(result);
+    };
+
+    document.getElementById('injectionTest').onclick = async () => {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: { "$ne": null },
+          password: "anything"
+        })
+      });
+
+      const result = await res.text();
+      alert(result);
+    };
+  </script>
+</body>
+</html>
