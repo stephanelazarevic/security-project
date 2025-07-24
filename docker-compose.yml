@@ -13,6 +13,9 @@ services:
 
   backend:
     build: ./backend
+    environment:
+      - JWT_SECRET=super-strong-secret-string
+    restart: on-failure
 
   mongodb:
     image: mongo:5
